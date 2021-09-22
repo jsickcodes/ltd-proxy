@@ -1,18 +1,6 @@
 name: CI
 
 "on":
-  push:
-    branches-ignore:
-      # These should always correspond to pull requests, so ignore them for
-      # the push trigger and let them be triggered by the pull_request
-      # trigger, avoiding running the workflow twice.  This is a minor
-      # optimization so there's no need to ensure this is comprehensive.
-      - "dependabot/**"
-      - "renovate/**"
-      - "tickets/**"
-      - "u/**"
-    tags:
-      - "*"
   pull_request: {}
 
 jobs:
@@ -23,7 +11,6 @@ jobs:
       matrix:
         python:
           - 3.8
-          - 3.9
 
     steps:
       - uses: actions/checkout@v2
@@ -57,15 +44,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: [test]
 
-    # Only do Docker builds of tagged releases and pull requests from ticket
-    # branches.  This will still trigger on pull requests from untrusted
-    # repositories whose branch names match our tickets/* branch convention,
-    # but in this case the build will fail with an error since the secret
-    # won't be set.
-    if: >
-      startsWith(github.ref, 'refs/tags/')
-      || startsWith(github.head_ref, 'tickets/')
-
     steps:
       - uses: actions/checkout@v2
         with:
@@ -73,42 +51,34 @@ jobs:
 
       - name: Define the Docker tag
         id: vars
-        run: echo ::set-output name=tag::$(scripts/docker-tag.sh "$GITHUB_REF")
+        run: echo ::set-output name=tag::$(scripts/docker-tag.sh "$GITHUB_HEAD_REF")
 
       - name: Print the tag
         id: print
         run: echo ${{ steps.vars.outputs.tag }}
 
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+
       - name: Set up Docker Buildx
+        id: buildx
         uses: docker/setup-buildx-action@v1
 
-      - name: Cache Docker layers
-        uses: actions/cache@v2
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
-          restore-keys:
-            ${{ runner.os }}-buildx-
-
-      - name: Log in to Docker Hub
+      - name: Login to GitHub Container Registry
         uses: docker/login-action@v1
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_TOKEN }}
+          registry: ghcr.io
+          username: token
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push
+      - name: Build Docker image
+        id: docker_build
         uses: docker/build-push-action@v2
         with:
-          context: .
-          push: true
-          tags: lsstsqre/ltdproxy:${{ steps.vars.outputs.tag }}
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache-new
-
-      # Temp fix
-      # https://github.com/docker/build-push-action/issues/252
-      # https://github.com/moby/buildkit/issues/1896
-      - name: Move cache
-        run: |
-          rm -rf /tmp/.buildx-cache
-          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+          context: ./  # use currently-checked out files
+          file: ./Dockerfile
+          push: ${{ github.repository == 'jsickcodes/ltd-proxy' }}
+          tags: |
+            ghcr.io/jsickcodes/ltd-proxy:${{ steps.vars.outputs.tag }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

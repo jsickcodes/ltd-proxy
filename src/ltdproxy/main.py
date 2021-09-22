@@ -34,8 +34,8 @@ app = FastAPI()
 # interface definition and documentation URLs under the external URL.
 _subapp = FastAPI(
     title="ltd-proxy",
-    description=metadata("ltdproxy").get("Summary", ""),
-    version=metadata("ltdproxy").get("Version", "0.0.0"),
+    description=metadata("ltd-proxy").get("Summary", ""),
+    version=metadata("ltd-proxy").get("Version", "0.0.0"),
 )
 _subapp.include_router(external_router)
 
