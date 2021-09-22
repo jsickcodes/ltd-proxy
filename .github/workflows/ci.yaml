@@ -77,7 +77,7 @@ jobs:
         with:
           context: ./  # use currently-checked out files
           file: ./Dockerfile
-          push: true
+          push: ${{ github.repository == 'jsickcodes/ltd-proxy' }}
           tags: |
             ghcr.io/jsickcodes/ltd-proxy:${{ steps.vars.outputs.tag }}
           cache-from: type=gha
