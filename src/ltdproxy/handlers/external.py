@@ -44,7 +44,7 @@ async def get_index(
     logger.info("Request for application metadata")
 
     metadata = get_metadata(
-        package_name="ltdproxy",
+        package_name="ltd-proxy",
         application_name=config.name,
     )
     return Index(metadata=metadata)

@@ -36,6 +36,6 @@ async def get_index() -> Metadata:
     By convention, this endpoint returns only the application's metadata.
     """
     return get_metadata(
-        package_name="ltdproxy",
+        package_name="ltd-proxy",
         application_name=config.name,
     )
