@@ -15,3 +15,4 @@ uvicorn[standard]
 safir
 httpx
 aws-request-signer
+python-dotenv
