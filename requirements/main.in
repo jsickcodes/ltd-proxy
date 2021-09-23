@@ -13,3 +13,6 @@ uvicorn[standard]
 
 # Other dependencies.
 safir
+httpx
+aws-request-signer
+python-dotenv

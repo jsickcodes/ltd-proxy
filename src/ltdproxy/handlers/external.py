@@ -1,50 +1,43 @@
 """Handlers for the app's external root, ``/ltdproxy/``."""
 
+import httpx
 from fastapi import APIRouter, Depends
+from safir.dependencies.http_client import http_client_dependency
 from safir.dependencies.logger import logger_dependency
-from safir.metadata import get_metadata
+from starlette.background import BackgroundTask
+from starlette.responses import StreamingResponse
 from structlog.stdlib import BoundLogger
 
-from ..config import config
-from ..models import Index
+from ltdproxy.config import config
+from ltdproxy.s3 import Bucket, bucket_dependency
 
-__all__ = ["get_index", "external_router"]
+__all__ = ["get_s3", "external_router"]
 
 external_router = APIRouter()
 """FastAPI router for all external handlers."""
 
 
 @external_router.get(
-    "/",
-    description=(
-        "Document the top-level API here. By default it only returns metadata"
-        " about the application."
-    ),
-    response_model=Index,
-    response_model_exclude_none=True,
-    summary="Application metadata",
+    "/{path:path}",
+    description="The S3 front-end proxy.",
 )
-async def get_index(
+async def get_s3(
+    path: str,
     logger: BoundLogger = Depends(logger_dependency),
-) -> Index:
-    """GET ``/ltdproxy/`` (the app's external root).
-
-    Customize this handler to return whatever the top-level resource of your
-    application should return. For example, consider listing key API URLs.
-    When doing so, also change or customize the response model in
-    `ltdproxy.models.Index`.
-
-    By convention, the root of the external API includes a field called
-    ``metadata`` that provides the same Safir-generated metadata as the
-    internal root endpoint.
-    """
-    # There is no need to log simple requests since uvicorn will do this
-    # automatically, but this is included as an example of how to use the
-    # logger for more complex logging.
-    logger.info("Request for application metadata")
-
-    metadata = get_metadata(
-        package_name="ltd-proxy",
-        application_name=config.name,
+    bucket: Bucket = Depends(bucket_dependency),
+    http_client: httpx.AsyncClient = Depends(http_client_dependency),
+) -> StreamingResponse:
+    """The S3 proxy endpoint."""
+    bucket_path = f"{config.s3_bucket_prefix}{path}"
+    stream = await bucket.stream_object(http_client, bucket_path)
+    logger.info("stream headers", headers=stream.headers)
+    response_headers = {
+        "Content-type": stream.headers["Content-type"],
+        "Content-length": stream.headers["Content-length"],
+        "Etag": stream.headers["Etag"],
+    }
+    return StreamingResponse(
+        stream.aiter_raw(),
+        background=BackgroundTask(stream.aclose),
+        headers=response_headers,
     )
-    return Index(metadata=metadata)

@@ -3,39 +3,56 @@
 from __future__ import annotations
 
 import os
-from dataclasses import dataclass
+from enum import Enum
 
-__all__ = ["Configuration", "config"]
+from pydantic import BaseSettings, Field, SecretStr
+
+__all__ = ["Configuration", "config", "Profile", "LogLevel"]
 
 
-@dataclass
-class Configuration:
+class LogLevel(str, Enum):
+
+    DEBUG = "DEBUG"
+
+    INFO = "INFO"
+
+    WARNING = "WARNING"
+
+    ERROR = "ERROR"
+
+    CRITICAL = "CRITICAL"
+
+
+class Profile(str, Enum):
+
+    production = "production"
+
+    development = "development"
+
+
+class Configuration(BaseSettings):
     """Configuration for ltdproxy."""
 
-    name: str = os.getenv("SAFIR_NAME", "ltdproxy")
-    """The application's name, which doubles as the root HTTP endpoint path.
+    name: str = Field("ltdproxy", env="SAFIR_NAME")
 
-    Set with the ``SAFIR_NAME`` environment variable.
-    """
+    profile: Profile = Field(Profile.production, env="SAFIR_PROFILE")
 
-    profile: str = os.getenv("SAFIR_PROFILE", "development")
-    """Application run profile: "development" or "production".
+    log_level: LogLevel = Field(LogLevel.INFO, env="SAFIR_LOG_LEVEL")
 
-    Set with the ``SAFIR_PROFILE`` environment variable.
-    """
+    logger_name: str = Field("ltdproxy", env="SAFIR_LOGGER")
 
-    logger_name: str = os.getenv("SAFIR_LOGGER", "ltdproxy")
-    """The root name of the application's logger.
+    s3_bucket: str = Field("test", env="LTDPROXY_S3_BUCKET")
 
-    Set with the ``SAFIR_LOGGER`` environment variable.
-    """
+    s3_bucket_prefix: str = Field("", env="LTD_PROXY_S3_PREFIX")
 
-    log_level: str = os.getenv("SAFIR_LOG_LEVEL", "INFO")
-    """The log level of the application's logger.
+    aws_region: str = Field("us-central-1", env="LTDPROXY_AWS_REGION")
 
-    Set with the ``SAFIR_LOG_LEVEL`` environment variable.
-    """
+    aws_access_key_id: SecretStr = Field(..., env="LTDPROXY_AWS_ACCESS_KEY_ID")
+
+    aws_secret_access_key: SecretStr = Field(
+        ..., env="LTDPROXY_AWS_SECRET_ACCESS_KEY"
+    )
 
 
-config = Configuration()
+config = Configuration(_env_file=os.getenv("LTD_PROXY_ENV"))
 """Configuration for ltd-proxy."""

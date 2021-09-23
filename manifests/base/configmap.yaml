@@ -8,6 +8,8 @@ data:
   # These configurations are injected as environment variables into the
   # app container.
   SAFIR_NAME: "ltdproxy"
-  SAFIR_PROFILE: "production"
   SAFIR_LOGGER: "ltdproxy"
   SAFIR_LOG_LEVEL: "INFO"
+  SAFIR_PROFILE: "production"
+  LTDPROXY_S3_BUCKET: ""
+  LTDPROXY_S3_PREFIX: ""
