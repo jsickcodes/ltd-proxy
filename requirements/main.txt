@@ -7,7 +7,9 @@
 anyio==3.3.2 \
     --hash=sha256:0b993a2ef6c1dc456815c2b5ca2819f382f20af98087cc2090a4afed3a501436 \
     --hash=sha256:c32da314c510b34a862f5afeaf8a446ffed2c2fde21583e654bd71ecfb5b744b
-    # via httpcore
+    # via
+    #   httpcore
+    #   starlette
 asgiref==3.4.1 \
     --hash=sha256:4ef1ab46b484e3c706329cedeff284a5d40824200638503f5768edb6de7d58e9 \
     --hash=sha256:ffc141aa908e6f175673e7b1b3b7af4fdb0ecb738fc5c8b88f69f055c2415214
@@ -101,9 +103,9 @@ cryptography==35.0.0 \
     --hash=sha256:eb80e8a1f91e4b7ef8b33041591e6d89b2b8e122d787e87eeb2b08da71bb16ad \
     --hash=sha256:ebeddd119f526bcf323a89f853afb12e225902a24d29b55fe18dd6fcb2838a76
     # via authlib
-fastapi==0.68.2 \
-    --hash=sha256:36bcdd3dbea87c586061005e4a40b9bd0145afd766655b4e0ec1d8870b32555c \
-    --hash=sha256:38526fc46bda73f7ec92033952677323c16061e70a91d15c95f18b11895da494
+fastapi==0.70.0 \
+    --hash=sha256:66da43cfe5185ea1df99552acffd201f1832c6b364e0f4136c0a99f933466ced \
+    --hash=sha256:a36d5f2fad931aa3575c07a3472c784e81f3e664e3bb5c8b9c88d0ec1104f59c
     # via
     #   -r requirements/main.in
     #   safir
@@ -150,6 +152,10 @@ idna==3.2 \
     # via
     #   anyio
     #   rfc3986
+itsdangerous==2.0.1 \
+    --hash=sha256:5174094b9637652bdb841a3029700391451bd092ba3db90600dea710ba28e97c \
+    --hash=sha256:9e724d68fc22902a1435351f84c3fb8623f303fffcc566a4cb952df8c572cff0
+    # via -r requirements/main.in
 pycparser==2.20 \
     --hash=sha256:2d475327684562c3a96cc71adf7dc8c4f0565175cf86b6d7a404ff4c771f15f0 \
     --hash=sha256:7582ad22678f0fcd81102833f60ef8d0e57288b6b5fb00323d101be910e35705
@@ -232,9 +238,9 @@ sniffio==1.2.0 \
     #   anyio
     #   httpcore
     #   httpx
-starlette==0.14.2 \
-    --hash=sha256:3c8e48e52736b3161e34c9f0e8153b4f32ec5d8995a3ee1d59410d92f75162ed \
-    --hash=sha256:7d49f4a27f8742262ef1470608c59ddbc66baf37c148e938c7038e6bc7a998aa
+starlette==0.16.0 \
+    --hash=sha256:38eb24bf705a2c317e15868e384c1b8a12ca396e5a3c3a003db7e667c43f939f \
+    --hash=sha256:e1904b5d0007aee24bdd3c43994be9b3b729f4f58e740200de1d623f8c3a8870
     # via
     #   -r requirements/main.in
     #   fastapi
