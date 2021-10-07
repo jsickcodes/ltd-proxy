@@ -59,6 +59,8 @@ class Configuration(BaseSettings):
         env="LTDPROXY_GITHUB_OAUTH_SECRET"
     )
 
+    session_key: SecretStr = Field(env="LTDPROXY_SESSION_KEY")
+
 
 config = Configuration(_env_file=os.getenv("LTD_PROXY_ENV"))
 """Configuration for ltd-proxy."""
