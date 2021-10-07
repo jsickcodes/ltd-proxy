@@ -43,7 +43,7 @@ class Configuration(BaseSettings):
 
     s3_bucket: str = Field("test", env="LTDPROXY_S3_BUCKET")
 
-    s3_bucket_prefix: str = Field("", env="LTD_PROXY_S3_PREFIX")
+    s3_bucket_prefix: str = Field("", env="LTDPROXY_S3_PREFIX")
 
     aws_region: str = Field("us-central-1", env="LTDPROXY_AWS_REGION")
 
