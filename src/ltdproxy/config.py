@@ -53,6 +53,12 @@ class Configuration(BaseSettings):
         ..., env="LTDPROXY_AWS_SECRET_ACCESS_KEY"
     )
 
+    github_oauth_client_id: str = Field(env="LTDPROXY_GITHUB_OAUTH_ID")
+
+    github_oauth_client_secret: SecretStr = Field(
+        env="LTDPROXY_GITHUB_OAUTH_SECRET"
+    )
+
 
 config = Configuration(_env_file=os.getenv("LTD_PROXY_ENV"))
 """Configuration for ltd-proxy."""
