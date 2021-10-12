@@ -58,7 +58,11 @@ class Bucket:
         )
 
 
-class BucketDependency:
+class ConfiguredBucket:
+    """This class maintains a configured Bucket instance; an instance of this
+    class can be used as a FastAPI path dependency.
+    """
+
     def __init__(self) -> None:
         self.bucket = Bucket(
             bucket=config.s3_bucket,
@@ -67,8 +71,10 @@ class BucketDependency:
             secret_access_key=config.aws_secret_access_key.get_secret_value(),
         )
 
-    def __call__(self) -> Bucket:
+    async def __call__(self) -> Bucket:
+        # This method is async so that FastAPI does not create an extra thread
+        # when calling this.
         return self.bucket
 
 
-bucket_dependency = BucketDependency()
+bucket_dependency = ConfiguredBucket()
