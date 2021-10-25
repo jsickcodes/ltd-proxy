@@ -17,7 +17,11 @@ from starlette.responses import (
 from structlog.stdlib import BoundLogger
 
 from ltdproxy.config import config
-from ltdproxy.githubauth import GitHubOAuthType, github_oauth_dependency
+from ltdproxy.githubauth import (
+    GitHubOAuthType,
+    github_oauth_dependency,
+    set_serialized_github_memberships,
+)
 from ltdproxy.s3 import Bucket, bucket_dependency
 
 __all__ = ["get_s3", "external_router"]
@@ -40,6 +44,7 @@ async def get_oauth_callback(
     request: Request,
     logger: BoundLogger = Depends(logger_dependency),
     github_oauth: GitHubOAuthType = Depends(github_oauth_dependency),
+    http_client: httpx.AsyncClient = Depends(http_client_dependency),
 ) -> Union[RedirectResponse, HTMLResponse]:
     try:
         token = await github_oauth.authorize_access_token(request)
@@ -53,6 +58,11 @@ async def get_oauth_callback(
     )
     if github_token:
         request.session["github_token"] = github_token
+    set_serialized_github_memberships(
+        http_client=http_client,
+        session=request.session,
+        github_token=github_token,
+    )
     return RedirectResponse(url="/ltdproxy/")
 
 
