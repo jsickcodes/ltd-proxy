@@ -241,14 +241,16 @@ pyyaml==6.0 \
     --hash=sha256:daf496c58a8c52083df09b80c860005194014c3698698d1a57cbcfa182142a3a \
     --hash=sha256:e61ceaab6f49fb8bdfaa0f92c4b57bcfbea54c09277b1b4f7ac376bfb7a7c174 \
     --hash=sha256:f84fbc98b019fef2ee9a1cb3ce93e3187a6df0b2538a651bfb890254ba9f90b5
-    # via uvicorn
+    # via
+    #   -r requirements/main.in
+    #   uvicorn
 rfc3986[idna2008]==1.5.0 \
     --hash=sha256:270aaf10d87d0d4e095063c65bf3ddbc6ee3d0b226328ce21e036f946e421835 \
     --hash=sha256:a86d6e1f5b1dc238b218b012df0aa79409667bb209e58da56d0b94704e712a97
     # via httpx
-safir==2.1.0 \
-    --hash=sha256:4e8094f58f61d0cc2ee75e3c17651735350dfcda3e389986c887fb2c5be34fd2 \
-    --hash=sha256:e92b2e9226d185e34b11c18c00e38a1d9b362cbf1ba128379eab730cdfce4939
+safir==2.1.1 \
+    --hash=sha256:6c33d7dfe9509fc6a14637c7078c107a941824d084bcd51a652dd7065d87efa4 \
+    --hash=sha256:8de37d4e0d1de0175bb803ad0b9ae7810841241f4697ca4ffd35e3da77d10f83
     # via -r requirements/main.in
 sniffio==1.2.0 \
     --hash=sha256:471b71698eac1c2112a40ce2752bb2f4a4814c22a54a3eed3676bc0f5ca9f663 \

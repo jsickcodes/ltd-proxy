@@ -10,6 +10,7 @@ fastapi
 gunicorn
 starlette
 uvicorn[standard]
+PyYAML
 
 # Other dependencies.
 safir
