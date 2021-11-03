@@ -1,0 +1,11 @@
+default:
+  - org: "jsickcodes"
+paths:
+  - pattern: "\/a\/"
+    authorized:
+      - org: "jsickcodes"
+        team: "Red Team"
+  - pattern: "\/b\/"
+    authorized:
+      - org: "jsickcodes"
+        team: "Blue Team"
