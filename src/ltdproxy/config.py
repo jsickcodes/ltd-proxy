@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 from enum import Enum
 
-from pydantic import BaseSettings, Field, FilePath, SecretStr
+from pydantic import BaseSettings, Field, FilePath, HttpUrl, SecretStr
 
 __all__ = ["Configuration", "config", "Profile", "LogLevel"]
 
@@ -57,6 +57,10 @@ class Configuration(BaseSettings):
 
     github_oauth_client_secret: SecretStr = Field(
         env="LTDPROXY_GITHUB_OAUTH_SECRET"
+    )
+
+    github_oauth_callback_url: HttpUrl = Field(
+        env="LTDPROXY_GITHUB_CALLBACK_URL"
     )
 
     session_key: SecretStr = Field(env="LTDPROXY_SESSION_KEY")

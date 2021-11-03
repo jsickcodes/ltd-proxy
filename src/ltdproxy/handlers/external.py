@@ -76,8 +76,7 @@ async def login(
     logger: BoundLogger = Depends(logger_dependency),
     github_oauth: GitHubOAuthType = Depends(github_oauth_dependency),
 ) -> RedirectResponse:
-    # redirect_uri = request.url_for('get_oauth_callback')
-    redirect_uri = "http://127.0.0.1:8000/auth"  # FIXME add config
+    redirect_uri = str(config.github_oauth_callback_url)
     logger.info("Redirecting to GitHub auth", callback_url=redirect_uri)
     return await github_oauth.authorize_redirect(request, redirect_uri)
 
