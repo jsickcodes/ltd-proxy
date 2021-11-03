@@ -37,9 +37,12 @@ external_router = APIRouter()
 async def homepage(request: Request) -> HTMLResponse:
     github_token = request.session.get("github_token")
     if github_token:
-        html = "<h1>hello!</p>" '<a href="/ltdproxy/logout">logout</a>'
+        html = (
+            "<h1>hello!</p>"
+            f'<a href="{request.url_for("logout")}">logout</a>'
+        )
         return HTMLResponse(html)
-    return HTMLResponse('<a href="/ltdproxy/login">login</a>')
+    return HTMLResponse(f'<a href="{request.url_for("login")}">login</a>')
 
 
 @external_router.get("/auth", name="get_oauth_callback")
@@ -53,8 +56,6 @@ async def get_oauth_callback(
         token = await github_oauth.authorize_access_token(request)
     except OAuthError as error:
         return HTMLResponse(f"<h1>{error.error}</h1>")
-    print(token)
-    print(type(token))
     github_token = token.get("access_token")
     logger.info(
         "Got github oauth token", token=token, access_token=github_token
@@ -66,7 +67,7 @@ async def get_oauth_callback(
         session=request.session,
         github_token=github_token,
     )
-    return RedirectResponse(url="/ltdproxy/")
+    return RedirectResponse(url=request.url_for("homepage"))
 
 
 @external_router.get("/login", name="login")
@@ -76,7 +77,7 @@ async def login(
     github_oauth: GitHubOAuthType = Depends(github_oauth_dependency),
 ) -> RedirectResponse:
     # redirect_uri = request.url_for('get_oauth_callback')
-    redirect_uri = "http://127.0.0.1:8000/ltdproxy/auth"
+    redirect_uri = "http://127.0.0.1:8000/auth"  # FIXME add config
     logger.info("Redirecting to GitHub auth", callback_url=redirect_uri)
     return await github_oauth.authorize_redirect(request, redirect_uri)
 
@@ -89,7 +90,7 @@ async def logout(
     request.session.pop("github_token", None)
     request.session.pop("github_memberships", None)
     logger.info("Logged out")
-    return RedirectResponse(url="/ltdproxy/")
+    return RedirectResponse(url=request.url_for("homepage"))
 
 
 @external_router.get(
