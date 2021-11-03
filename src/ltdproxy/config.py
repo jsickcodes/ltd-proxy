@@ -63,6 +63,8 @@ class Configuration(BaseSettings):
 
     github_auth_config_path: FilePath = Field(env="LTDPROXY_AUTH_CONFIG")
 
+    path_prefix: str = Field("/", env="LTDPROXY_PATH_PREFIX")
+
 
 config = Configuration(_env_file=os.getenv("LTD_PROXY_ENV"))
 """Configuration for ltd-proxy."""
