@@ -34,18 +34,6 @@ external_router = APIRouter()
 """FastAPI router for all external handlers."""
 
 
-@external_router.get("/", name="homepage")
-async def homepage(request: Request) -> HTMLResponse:
-    github_token = request.session.get("github_token")
-    if github_token:
-        html = (
-            "<h1>hello!</p>"
-            f'<a href="{request.url_for("logout")}">logout</a>'
-        )
-        return HTMLResponse(html)
-    return HTMLResponse(f'<a href="{request.url_for("login")}">login</a>')
-
-
 @external_router.get("/auth", name="get_oauth_callback")
 async def get_oauth_callback(
     ref: Optional[str],
@@ -77,7 +65,7 @@ async def get_oauth_callback(
         redirect_url = ref
     else:
         # Default redirect.
-        redirect_url = request.url_for("homepage")
+        redirect_url = request.url_for("/")
 
     return RedirectResponse(url=redirect_url)
 
@@ -115,7 +103,17 @@ async def get_logout(
     request.session.pop("github_token", None)
     request.session.pop("github_memberships", None)
     logger.info("Logged out")
-    return RedirectResponse(url=request.url_for("homepage"))
+    return RedirectResponse(url=request.url_for("logged-out"))
+
+
+@external_router.get("/logged-out", name="logged-out")
+async def get_logged_out(
+    request: Request,
+) -> Union[HTMLResponse, RedirectResponse]:
+    if "github_memberships" in request.session:
+        # Not actually logged out yet so redirect to /logout first
+        return RedirectResponse(url=request.url_for("logout"))
+    return HTMLResponse("<h1>You're logged out.</h1>")
 
 
 @external_router.get(
