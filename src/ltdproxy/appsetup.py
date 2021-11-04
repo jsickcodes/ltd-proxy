@@ -6,6 +6,7 @@ from importlib.metadata import metadata
 from typing import TYPE_CHECKING
 
 from .handlers.external import external_router
+from .handlers.healthcheck import health_router
 from .handlers.internal import internal_router
 
 if TYPE_CHECKING:
@@ -16,6 +17,7 @@ if TYPE_CHECKING:
 
 def add_handlers(*, config: Configuration, app: FastAPI) -> None:
     if config.path_prefix == "/":
+        app.include_router(health_router)
         app.include_router(external_router)
     else:
         external_app = FastAPI(
@@ -27,4 +29,5 @@ def add_handlers(*, config: Configuration, app: FastAPI) -> None:
         external_app.include_router(external_router)
 
         app.include_router(internal_router)
+        app.include_router(health_router)
         app.mount(f"{config.path_prefix}", external_app)
