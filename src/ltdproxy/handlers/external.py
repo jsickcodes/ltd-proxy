@@ -153,6 +153,8 @@ async def get_s3(
         else:
             bucket_path = f"{config.s3_bucket_prefix}{path}"
         stream = await bucket.stream_object(http_client, bucket_path)
+        if stream.status_code == 404:
+            raise HTTPException(status_code=404, detail="Does not exist.")
         logger.info("stream headers", headers=stream.headers)
         response_headers = {
             "Content-type": stream.headers["Content-type"],
