@@ -47,7 +47,7 @@ async def get_oauth_callback(
     except OAuthError as error:
         return HTMLResponse(f"<h1>{error.error}</h1>")
     github_token = token.get("access_token")
-    logger.info(
+    logger.debug(
         "Got github oauth token", token=token, access_token=github_token
     )
     if github_token:
@@ -91,7 +91,7 @@ async def get_login(
                 .geturl()
             )
 
-    logger.info("Redirecting to GitHub auth", callback_url=redirect_uri)
+    logger.debug("Redirecting to GitHub auth", callback_url=redirect_uri)
     return await github_oauth.authorize_redirect(request, redirect_uri)
 
 
@@ -102,7 +102,7 @@ async def get_logout(
 ) -> RedirectResponse:
     request.session.pop("github_token", None)
     request.session.pop("github_memberships", None)
-    logger.info("Logged out")
+    logger.debug("Logged out")
     return RedirectResponse(url=request.url_for("logged-out"))
 
 
@@ -155,7 +155,7 @@ async def get_s3(
         stream = await bucket.stream_object(http_client, bucket_path)
         if stream.status_code == 404:
             raise HTTPException(status_code=404, detail="Does not exist.")
-        logger.info("stream headers", headers=stream.headers)
+        logger.debug("stream headers", headers=stream.headers)
         response_headers = {
             "Content-type": stream.headers["Content-type"],
             "Content-length": stream.headers["Content-length"],
