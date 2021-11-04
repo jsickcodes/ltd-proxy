@@ -24,7 +24,7 @@ configure_logging(
     name=config.logger_name,
 )
 
-app = FastAPI()
+app = FastAPI(openapi_url=None)
 """The main FastAPI application for ltd-proxy."""
 
 add_handlers(app=app, config=config)

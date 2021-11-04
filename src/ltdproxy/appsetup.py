@@ -22,6 +22,7 @@ def add_handlers(*, config: Configuration, app: FastAPI) -> None:
             title="ltd-proxy",
             description=metadata("ltd-proxy").get("Summary", ""),
             version=metadata("ltd-proxy").get("Version", "0.0.0"),
+            openapi_url=None,
         )
         external_app.include_router(external_router)
 
