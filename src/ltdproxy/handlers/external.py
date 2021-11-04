@@ -147,7 +147,11 @@ async def get_s3(
 
     elif github_auth_result == AuthResult.authorized:
         # User is authorized; stream from S3.
-        bucket_path = f"{config.s3_bucket_prefix}{path}"
+        if path == "" or path.endswith("/"):
+            # redwrite "*/" as "*/index.html" for static sites in S3
+            bucket_path = f"{config.s3_bucket_prefix}{path}index.html"
+        else:
+            bucket_path = f"{config.s3_bucket_prefix}{path}"
         stream = await bucket.stream_object(http_client, bucket_path)
         logger.info("stream headers", headers=stream.headers)
         response_headers = {
