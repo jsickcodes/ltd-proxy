@@ -19,7 +19,7 @@ spec:
         - name: app
           imagePullPolicy: "IfNotPresent"
           # Use images field in a Kustomization to set/update image tag
-          image: "lsstsqre/ltdproxy"
+          image: "ghcr.io/jsickcodes/ltd-proxy"
           ports:
             - containerPort: 8080
               name: "app"
@@ -32,6 +32,14 @@ spec:
               drop:
                 - "all"
             readOnlyRootFilesystem: true
+          volumeMounts:
+             - name: "auth-config"
+               mountPath: "/opt/ltdproxy/auth/"
+               readOnly: true
+      volumes:
+        - name: "auth-config"
+          configMap:
+            name: "ltdproxy-auth"
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
