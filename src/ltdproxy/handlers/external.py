@@ -1,6 +1,7 @@
 """Handlers for the app's external root, ``/ltdproxy/``."""
 
-from typing import Union
+from typing import Optional, Union
+from urllib.parse import urlencode, urlparse
 
 import httpx
 from authlib.integrations.starlette_client import OAuthError
@@ -47,6 +48,7 @@ async def homepage(request: Request) -> HTMLResponse:
 
 @external_router.get("/auth", name="get_oauth_callback")
 async def get_oauth_callback(
+    ref: Optional[str],
     request: Request,
     logger: BoundLogger = Depends(logger_dependency),
     github_oauth: GitHubOAuthType = Depends(github_oauth_dependency),
@@ -67,22 +69,46 @@ async def get_oauth_callback(
         session=request.session,
         github_token=github_token,
     )
-    return RedirectResponse(url=request.url_for("homepage"))
+
+    # Compute redirect URL
+    if ref:
+        # The original callback URL included the "ref" query parameter with
+        # the referring page's URL. We'll redirect to that.
+        redirect_url = ref
+    else:
+        # Default redirect.
+        redirect_url = request.url_for("homepage")
+
+    return RedirectResponse(url=redirect_url)
 
 
 @external_router.get("/login", name="login")
-async def login(
+async def get_login(
+    ref: Optional[str],
     request: Request,
     logger: BoundLogger = Depends(logger_dependency),
     github_oauth: GitHubOAuthType = Depends(github_oauth_dependency),
 ) -> RedirectResponse:
+    """Log a user in by redirecting to GitHub OAuth."""
     redirect_uri = str(config.github_oauth_callback_url)
+    if ref:
+        # The ref query string can be set to point to the page that
+        # asked for the login.
+        # Make sure return return url is in same domain as this request
+        # (i.e., only redirect when on same site)
+        if urlparse(ref).netloc == request.url.netloc:
+            redirect_uri = (
+                urlparse(redirect_uri)
+                ._replace(query=urlencode({"ref": ref}, doseq=True))
+                .geturl()
+            )
+
     logger.info("Redirecting to GitHub auth", callback_url=redirect_uri)
     return await github_oauth.authorize_redirect(request, redirect_uri)
 
 
 @external_router.get("/logout", name="logout")
-async def logout(
+async def get_logout(
     request: Request,
     logger: BoundLogger = Depends(logger_dependency),
 ) -> RedirectResponse:
@@ -107,11 +133,22 @@ async def get_s3(
     github_auth_result = github_auth.is_session_authorized(
         path=f"/{path}", session=request.session
     )
+
     if github_auth_result == AuthResult.unauthenticated:
-        return RedirectResponse(url=request.url_for("login"))
+        # User is not authenticated so redirect to the login page with
+        # this page's URL as the ref query string so they'll get redirect
+        # back here after login.
+        login_url = request.url_for("login")
+        ref_qs = urlencode({"ref": request.url}, doseq=True)
+        login_url = urlparse(login_url)._replace(query=ref_qs).geturl()
+        return RedirectResponse(url=login_url)
+
     elif github_auth_result == AuthResult.unauthorized:
+        # User is not authorized.
         raise HTTPException(status_code=403, detail="Not authorized")
+
     elif github_auth_result == AuthResult.authorized:
+        # User is authorized; stream from S3.
         bucket_path = f"{config.s3_bucket_prefix}{path}"
         stream = await bucket.stream_object(http_client, bucket_path)
         logger.info("stream headers", headers=stream.headers)
@@ -125,5 +162,7 @@ async def get_s3(
             background=BackgroundTask(stream.aclose),
             headers=response_headers,
         )
+
     else:
+        # Catch-all error
         raise HTTPException(status_code=500, detail="Internal auth error")
