@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 from enum import Enum
 
-from pydantic import BaseSettings, Field, SecretStr
+from pydantic import BaseSettings, Field, FilePath, HttpUrl, SecretStr
 
 __all__ = ["Configuration", "config", "Profile", "LogLevel"]
 
@@ -43,7 +43,7 @@ class Configuration(BaseSettings):
 
     s3_bucket: str = Field("test", env="LTDPROXY_S3_BUCKET")
 
-    s3_bucket_prefix: str = Field("", env="LTD_PROXY_S3_PREFIX")
+    s3_bucket_prefix: str = Field("", env="LTDPROXY_S3_PREFIX")
 
     aws_region: str = Field("us-central-1", env="LTDPROXY_AWS_REGION")
 
@@ -52,6 +52,22 @@ class Configuration(BaseSettings):
     aws_secret_access_key: SecretStr = Field(
         ..., env="LTDPROXY_AWS_SECRET_ACCESS_KEY"
     )
+
+    github_oauth_client_id: str = Field(env="LTDPROXY_GITHUB_OAUTH_ID")
+
+    github_oauth_client_secret: SecretStr = Field(
+        env="LTDPROXY_GITHUB_OAUTH_SECRET"
+    )
+
+    github_oauth_callback_url: HttpUrl = Field(
+        env="LTDPROXY_GITHUB_CALLBACK_URL"
+    )
+
+    session_key: SecretStr = Field(env="LTDPROXY_SESSION_KEY")
+
+    github_auth_config_path: FilePath = Field(env="LTDPROXY_AUTH_CONFIG")
+
+    path_prefix: str = Field("/", env="LTDPROXY_PATH_PREFIX")
 
 
 config = Configuration(_env_file=os.getenv("LTD_PROXY_ENV"))

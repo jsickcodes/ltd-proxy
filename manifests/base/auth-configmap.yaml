@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "ltdproxy-auth"
+  labels:
+    app.kubernetes.io/name: "ltd-proxy"
+data:
+  authrules.yaml: |
+    default:
+      - org: "jsickcodes"
+    paths: []
+     - pattern: "\/a\/"
+        authorized:
+          - org: "jsickcodes"
+            team: "Red Team"
+

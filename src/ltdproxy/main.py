@@ -7,19 +7,16 @@ constructed when this module is loaded and is not deferred until a function is
 called.
 """
 
-from importlib.metadata import metadata
-
 from fastapi import FastAPI
 from safir.dependencies.http_client import http_client_dependency
 from safir.logging import configure_logging
 from safir.middleware.x_forwarded import XForwardedMiddleware
+from starlette.middleware.sessions import SessionMiddleware
 
+from .appsetup import add_handlers
 from .config import config
-from .handlers.external import external_router
-from .handlers.internal import internal_router
 
 __all__ = ["app", "config"]
-
 
 configure_logging(
     profile=config.profile,
@@ -27,21 +24,14 @@ configure_logging(
     name=config.logger_name,
 )
 
-app = FastAPI()
+app = FastAPI(openapi_url=None)
 """The main FastAPI application for ltd-proxy."""
 
-# Define the external routes in a subapp so that it will serve its own OpenAPI
-# interface definition and documentation URLs under the external URL.
-_subapp = FastAPI(
-    title="ltd-proxy",
-    description=metadata("ltd-proxy").get("Summary", ""),
-    version=metadata("ltd-proxy").get("Version", "0.0.0"),
-)
-_subapp.include_router(external_router)
+add_handlers(app=app, config=config)
 
-# Attach the internal routes and subapp to the main application.
-app.include_router(internal_router)
-app.mount(f"/{config.name}", _subapp)
+app.add_middleware(
+    SessionMiddleware, secret_key=config.session_key.get_secret_value()
+)
 
 
 @app.on_event("startup")

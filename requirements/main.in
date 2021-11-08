@@ -10,9 +10,13 @@ fastapi
 gunicorn
 starlette
 uvicorn[standard]
+PyYAML
 
 # Other dependencies.
 safir
 httpx
 aws-request-signer
 python-dotenv
+Authlib
+itsdangerous
+gidgethub
