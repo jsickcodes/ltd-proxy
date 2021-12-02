@@ -27,6 +27,7 @@ from ltdproxy.githubauth import (
     set_serialized_github_memberships,
 )
 from ltdproxy.s3 import Bucket, bucket_dependency
+from ltdproxy.urlmap import map_s3_path
 
 __all__ = ["get_s3", "external_router"]
 
@@ -147,11 +148,7 @@ async def get_s3(
 
     elif github_auth_result == AuthResult.authorized:
         # User is authorized; stream from S3.
-        if path == "" or path.endswith("/"):
-            # redwrite "*/" as "*/index.html" for static sites in S3
-            bucket_path = f"{config.s3_bucket_prefix}{path}index.html"
-        else:
-            bucket_path = f"{config.s3_bucket_prefix}{path}"
+        bucket_path = map_s3_path(config.s3_bucket_prefix, path)
         stream = await bucket.stream_object(http_client, bucket_path)
         if stream.status_code == 404:
             raise HTTPException(status_code=404, detail="Does not exist.")
