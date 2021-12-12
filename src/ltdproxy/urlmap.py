@@ -12,7 +12,7 @@ def map_s3_path(bucket_prefix: str, request_path: str) -> str:
     parts = request_path.split("/")
     project_name = parts[0].lower()
 
-    if parts[1].lower() == "v":
+    if (len(parts) == 1) or parts[1].lower() == "v":
         edition_name = parts[2]
         edition_path = "/".join(parts[3:])
     else:
