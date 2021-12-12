@@ -1,14 +1,14 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: "ltdproxy"
+  name: "ltd-proxy"
   labels:
     app.kubernetes.io/name: "ltd-proxy"
 spec:
   ports:
-    - name: "ltdproxy-http"
+    - name: "ltd-proxy-http"
       protocol: "TCP"
       port: 8080
       targetPort: "app"
   selector:
-    app.kubernetes.io/name: "ltdproxy"
+    app.kubernetes.io/name: "ltd-proxy"

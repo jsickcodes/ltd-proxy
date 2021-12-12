@@ -1,17 +1,17 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: "ltdproxy"
+  name: "ltd-proxy"
   labels:
     app.kubernetes.io/name: "ltd-proxy"
 data:
   # These configurations are injected as environment variables into the
   # app container.
-  SAFIR_NAME: "ltdproxy"
-  SAFIR_LOGGER: "ltdproxy"
+  SAFIR_NAME: "ltd-proxy"
+  SAFIR_LOGGER: "ltd-proxy"
   SAFIR_LOG_LEVEL: "INFO"
   SAFIR_PROFILE: "production"
-  LTDPROXY_AUTH_CONFIG: "/opt/ltdproxy/auth/authrules.yaml"
+  LTDPROXY_AUTH_CONFIG: "/opt/ltd-proxy/auth/authrules.yaml"
   LTDPROXY_PATH_PREFIX: "/"
   LTDPROXY_S3_BUCKET: ""
   LTDPROXY_S3_PREFIX: ""
