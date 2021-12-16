@@ -169,6 +169,18 @@ async def get_s3(
             "Content-length": stream.headers["Content-length"],
             "Etag": stream.headers["Etag"],
         }
+        # FIXME hack to override content-type headers
+        if bucket_path.endswith(".html"):
+            response_headers["Content-type"] = "text/html"
+        elif bucket_path.endswith(".css"):
+            response_headers["Content-type"] = "text/css"
+        elif bucket_path.endswith(".js"):
+            response_headers["Content-type"] = "application/javascript"
+        elif bucket_path.endswith(".pdf"):
+            response_headers["Content-type"] = "application/pdf"
+        elif bucket_path.endswith(".png"):
+            response_headers["Content-type"] = "image/png"
+
         return StreamingResponse(
             stream.aiter_raw(),
             background=BackgroundTask(stream.aclose),
