@@ -171,15 +171,24 @@ async def get_s3(
         }
         # FIXME hack to override content-type headers
         if bucket_path.endswith(".html"):
+            logger.debug("is html")
             response_headers["Content-type"] = "text/html"
         elif bucket_path.endswith(".css"):
+            logger.debug("is css")
             response_headers["Content-type"] = "text/css"
         elif bucket_path.endswith(".js"):
+            logger.debug("is js")
             response_headers["Content-type"] = "application/javascript"
         elif bucket_path.endswith(".pdf"):
+            logger.debug("is pdf")
             response_headers["Content-type"] = "application/pdf"
         elif bucket_path.endswith(".png"):
+            logger.debug("is png")
             response_headers["Content-type"] = "image/png"
+        else:
+            logger.debug("did not change response content-type")
+
+        logger.debug("response headers", headers=response_headers)
 
         return StreamingResponse(
             stream.aiter_raw(),
