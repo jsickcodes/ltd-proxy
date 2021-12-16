@@ -155,6 +155,11 @@ async def get_s3(
     elif github_auth_result == AuthResult.authorized:
         # User is authorized; stream from S3.
         bucket_path = map_s3_path(config.s3_bucket_prefix, path)
+        logger.debug(
+            "computed bucket path",
+            bucket_path=bucket_path,
+            request_url=request.url,
+        )
         stream = await bucket.stream_object(http_client, bucket_path)
         if stream.status_code == 404:
             raise HTTPException(status_code=404, detail="Does not exist.")
