@@ -17,6 +17,11 @@ from ltdproxy.urlmap import map_s3_path
         ),
         (
             "",
+            "myproject/test.css",
+            "myproject/v/__main/test.css",
+        ),
+        (
+            "",
             "myproject/index.html",
             "myproject/v/__main/index.html",
         ),

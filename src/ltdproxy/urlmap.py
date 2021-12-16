@@ -12,12 +12,12 @@ def map_s3_path(bucket_prefix: str, request_path: str) -> str:
     parts = request_path.split("/")
     project_name = parts[0].lower()
 
-    if (len(parts) == 1) or parts[1].lower() == "v":
+    if (len(parts) >= 3) and parts[1].lower() == "v":
         edition_name = parts[2]
         edition_path = "/".join(parts[3:])
     else:
         edition_name = "__main"  # default edition
-        edition_path = "/".join(parts[2:])
+        edition_path = "/".join(parts[1:])
 
     if edition_path == "" or edition_path.endswith("/"):
         edition_path = f"{edition_path}index.html"
