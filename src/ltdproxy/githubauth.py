@@ -21,6 +21,7 @@ import gidgethub.httpx
 import yaml
 from authlib.integrations.starlette_client import OAuth
 from pydantic import BaseModel
+from structlog import get_logger
 
 from ltdproxy.config import config
 
@@ -41,6 +42,8 @@ GitHubOAuthType = TypeVar(
     bound=authlib.integrations.starlette_client.integration.StarletteRemoteApp,
 )
 """Type alias from the authlib GitHub OAuth client."""
+
+logger = get_logger(__name__)
 
 
 class GitHubOAuth:
@@ -147,6 +150,11 @@ class PathRule(BaseModel):
     def path_matches(self, url_path: str) -> bool:
         """Test if a URL path matches the rule's patten."""
         if self.pattern.match(url_path):
+            logger.debug(
+                "Path matches PathRule",
+                pattern=self.pattern,
+                url_path=url_path,
+            )
             return True
         else:
             return False
@@ -172,6 +180,12 @@ class PathRule(BaseModel):
                     return True
 
         # no matches
+        logger.debug(
+            "No authorization match",
+            pattern=self.pattern,
+            user_orgs=user_orgs,
+            user_teams=user_teams,
+        )
         return False
 
 
