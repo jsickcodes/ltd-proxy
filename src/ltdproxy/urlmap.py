@@ -19,7 +19,8 @@ def map_s3_path(bucket_prefix: str, request_path: str) -> str:
         edition_name = "__main"  # default edition
         edition_path = "/".join(parts[1:])
 
-    if edition_path == "" or edition_path.endswith("/"):
+    # if edition_path == "" or edition_path.endswith("/"):
+    if request_path.endswith("/"):
         edition_path = f"{edition_path}index.html"
 
     if bucket_prefix == "":
@@ -34,5 +35,6 @@ def map_s3_path(bucket_prefix: str, request_path: str) -> str:
         ]
 
     bucket_path = "/".join(path_parts)
+    bucket_path = bucket_path.rstrip("/")  # happens if edition_path is ""
 
     return bucket_path

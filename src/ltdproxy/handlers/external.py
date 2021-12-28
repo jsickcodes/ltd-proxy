@@ -1,5 +1,6 @@
 """Handlers for the app's external root, ``/ltdproxy/``."""
 
+import posixpath
 from typing import Optional, Union
 from urllib.parse import urlencode, urlparse
 
@@ -158,11 +159,17 @@ async def get_s3(
         logger.debug(
             "computed bucket path",
             bucket_path=bucket_path,
-            request_url=request.url,
+            request_url=str(request.url),
         )
         stream = await bucket.stream_object(http_client, bucket_path)
         if stream.status_code == 404:
-            raise HTTPException(status_code=404, detail="Does not exist.")
+            if not path.endswith("/") and posixpath.splitext(path)[1] == "":
+                # try a redirect
+                parsed_url = urlparse(str(request.url))
+                parsed_url = parsed_url._replace(path=f"{parsed_url.path}/")
+                return RedirectResponse(url=parsed_url.geturl())
+            else:
+                raise HTTPException(status_code=404, detail="Does not exist.")
         logger.debug("stream headers", headers=stream.headers)
         response_headers = {
             "Content-type": stream.headers["Content-type"],

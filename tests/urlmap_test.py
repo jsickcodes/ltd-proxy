@@ -12,6 +12,11 @@ from ltdproxy.urlmap import map_s3_path
     [
         (
             "",
+            "myproject",
+            "myproject/v/__main",
+        ),
+        (
+            "",
             "myproject/",
             "myproject/v/__main/index.html",
         ),
@@ -28,7 +33,7 @@ from ltdproxy.urlmap import map_s3_path
         (
             "",
             "myproject/v/dev",
-            "myproject/v/dev/index.html",
+            "myproject/v/dev",
         ),
         (
             "",
@@ -58,7 +63,7 @@ from ltdproxy.urlmap import map_s3_path
         (
             "prefix",
             "myproject/v/dev",
-            "prefix/myproject/v/dev/index.html",
+            "prefix/myproject/v/dev",
         ),
         (
             "prefix",
