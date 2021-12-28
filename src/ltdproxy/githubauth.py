@@ -43,7 +43,7 @@ GitHubOAuthType = TypeVar(
 )
 """Type alias from the authlib GitHub OAuth client."""
 
-logger = get_logger(__name__)
+logger = get_logger(config.logger_name)
 
 
 class GitHubOAuth:
@@ -95,6 +95,10 @@ async def set_serialized_github_memberships(
     relevant_orgs = github_auth.relevant_orgs
     relevant_teams = github_auth.relevant_teams
 
+    logger.debug(
+        "relevant orgs and teams", orgs=relevant_orgs, teams=relevant_teams
+    )
+
     github_client = gidgethub.httpx.GitHubAPI(
         http_client, "ltd-proxy", oauth_token=github_token
     )
@@ -110,10 +114,12 @@ async def set_serialized_github_memberships(
     async for team in github_client.getiter("/user/teams"):
         team_id = (team["organization"]["login"], team["name"])
         if team_id in relevant_teams:
+            logger.debug("Found relevant team", team=team)
             user_teams.append(team_id)
 
     # Serialize memberships to JSON to pack inside the session cookie
     memberships = json.dumps({"orgs": user_orgs, "teams": user_teams})
+    logger.debug("GitHub user memberships", orgs=user_orgs, teams=user_teams)
     session["github_memberships"] = memberships
 
 
