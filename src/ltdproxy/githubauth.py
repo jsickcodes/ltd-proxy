@@ -93,11 +93,8 @@ async def set_serialized_github_memberships(
     # These orgs and teams are mentioned in the GitHub Auth configuration,
     # and therefore are ones to pay attention to in the cookie.
     relevant_orgs = github_auth.relevant_orgs
-    relevant_teams = github_auth.relevant_teams
 
-    logger.debug(
-        "relevant orgs and teams", orgs=relevant_orgs, teams=relevant_teams
-    )
+    logger.debug("Relevant orgs", orgs=relevant_orgs)
 
     github_client = gidgethub.httpx.GitHubAPI(
         http_client, "ltd-proxy", oauth_token=github_token
@@ -113,7 +110,7 @@ async def set_serialized_github_memberships(
     user_teams: List[Tuple[str, str]] = []
     async for team in github_client.getiter("/user/teams"):
         team_id = (team["organization"]["login"], team["name"])
-        if team_id in relevant_teams:
+        if team_id[0] in relevant_orgs:
             logger.debug("Found relevant team", team=team)
             user_teams.append(team_id)
 
@@ -277,13 +274,11 @@ class GitHubAuth(BaseModel):
         all_orgs: Set[str] = set()
 
         for github_group in self.default:
-            if not github_group.is_team:
-                all_orgs.add(github_group.org)
+            all_orgs.add(github_group.org)
 
         for path_rule in self.paths:
             for github_group in path_rule.authorized:
-                if not github_group.is_team:
-                    all_orgs.add(github_group.org)
+                all_orgs.add(github_group.org)
 
         return all_orgs
 
