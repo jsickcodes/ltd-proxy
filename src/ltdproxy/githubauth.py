@@ -21,6 +21,7 @@ import gidgethub.httpx
 import yaml
 from authlib.integrations.starlette_client import OAuth
 from pydantic import BaseModel
+from structlog import get_logger
 
 from ltdproxy.config import config
 
@@ -41,6 +42,8 @@ GitHubOAuthType = TypeVar(
     bound=authlib.integrations.starlette_client.integration.StarletteRemoteApp,
 )
 """Type alias from the authlib GitHub OAuth client."""
+
+logger = get_logger(config.logger_name)
 
 
 class GitHubOAuth:
@@ -90,7 +93,8 @@ async def set_serialized_github_memberships(
     # These orgs and teams are mentioned in the GitHub Auth configuration,
     # and therefore are ones to pay attention to in the cookie.
     relevant_orgs = github_auth.relevant_orgs
-    relevant_teams = github_auth.relevant_teams
+
+    logger.debug("Relevant orgs", orgs=relevant_orgs)
 
     github_client = gidgethub.httpx.GitHubAPI(
         http_client, "ltd-proxy", oauth_token=github_token
@@ -106,11 +110,13 @@ async def set_serialized_github_memberships(
     user_teams: List[Tuple[str, str]] = []
     async for team in github_client.getiter("/user/teams"):
         team_id = (team["organization"]["login"], team["name"])
-        if team_id in relevant_teams:
+        if team_id[0] in relevant_orgs:
+            logger.debug("Found relevant team", team=team)
             user_teams.append(team_id)
 
     # Serialize memberships to JSON to pack inside the session cookie
     memberships = json.dumps({"orgs": user_orgs, "teams": user_teams})
+    logger.debug("GitHub user memberships", orgs=user_orgs, teams=user_teams)
     session["github_memberships"] = memberships
 
 
@@ -147,6 +153,11 @@ class PathRule(BaseModel):
     def path_matches(self, url_path: str) -> bool:
         """Test if a URL path matches the rule's patten."""
         if self.pattern.match(url_path):
+            logger.debug(
+                "Path matches PathRule",
+                pattern=self.pattern,
+                url_path=url_path,
+            )
             return True
         else:
             return False
@@ -172,6 +183,12 @@ class PathRule(BaseModel):
                     return True
 
         # no matches
+        logger.debug(
+            "No authorization match",
+            pattern=self.pattern,
+            user_orgs=user_orgs,
+            user_teams=user_teams,
+        )
         return False
 
 
@@ -257,13 +274,11 @@ class GitHubAuth(BaseModel):
         all_orgs: Set[str] = set()
 
         for github_group in self.default:
-            if not github_group.is_team:
-                all_orgs.add(github_group.org)
+            all_orgs.add(github_group.org)
 
         for path_rule in self.paths:
             for github_group in path_rule.authorized:
-                if not github_group.is_team:
-                    all_orgs.add(github_group.org)
+                all_orgs.add(github_group.org)
 
         return all_orgs
 

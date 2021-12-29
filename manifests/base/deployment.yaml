@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: "ltdproxy"
+  name: "ltd-proxy"
   labels:
     app.kubernetes.io/name: "ltd-proxy"
 spec:
@@ -25,7 +25,7 @@ spec:
               name: "app"
           envFrom:
             - configMapRef:
-                name: "ltdproxy"
+                name: "ltd-proxy"
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
@@ -34,12 +34,12 @@ spec:
             readOnlyRootFilesystem: true
           volumeMounts:
              - name: "auth-config"
-               mountPath: "/opt/ltdproxy/auth/"
+               mountPath: "/opt/ltd-proxy/auth/"
                readOnly: true
       volumes:
         - name: "auth-config"
           configMap:
-            name: "ltdproxy-auth"
+            name: "ltd-proxy-auth"
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000

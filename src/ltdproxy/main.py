@@ -7,9 +7,11 @@ constructed when this module is loaded and is not deferred until a function is
 called.
 """
 
+import structlog
 from fastapi import FastAPI
 from safir.dependencies.http_client import http_client_dependency
 from safir.logging import configure_logging
+from safir.metadata import get_metadata
 from safir.middleware.x_forwarded import XForwardedMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 
@@ -36,6 +38,12 @@ app.add_middleware(
 
 @app.on_event("startup")
 async def startup_event() -> None:
+    logger = structlog.get_logger(config.logger_name)
+    metadata = get_metadata(
+        package_name="ltd-proxy",
+        application_name=config.name,
+    )
+    logger.info("Starting up", version=metadata.version)
     app.add_middleware(XForwardedMiddleware)
 
 

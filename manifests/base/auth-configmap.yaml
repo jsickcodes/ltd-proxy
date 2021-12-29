@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: "ltdproxy-auth"
+  name: "ltd-proxy-auth"
   labels:
     app.kubernetes.io/name: "ltd-proxy"
 data:

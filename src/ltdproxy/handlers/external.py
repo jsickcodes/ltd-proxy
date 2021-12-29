@@ -1,5 +1,6 @@
 """Handlers for the app's external root, ``/ltdproxy/``."""
 
+import posixpath
 from typing import Optional, Union
 from urllib.parse import urlencode, urlparse
 
@@ -12,6 +13,7 @@ from starlette.background import BackgroundTask
 from starlette.requests import Request
 from starlette.responses import (
     HTMLResponse,
+    PlainTextResponse,
     RedirectResponse,
     StreamingResponse,
 )
@@ -27,11 +29,17 @@ from ltdproxy.githubauth import (
     set_serialized_github_memberships,
 )
 from ltdproxy.s3 import Bucket, bucket_dependency
+from ltdproxy.urlmap import map_s3_path
 
 __all__ = ["get_s3", "external_router"]
 
 external_router = APIRouter()
 """FastAPI router for all external handlers."""
+
+
+@external_router.get("/", name="homepage")
+async def get_homepage() -> PlainTextResponse:
+    return PlainTextResponse("OK", status_code=200)
 
 
 @external_router.get("/auth", name="get_oauth_callback")
@@ -147,20 +155,48 @@ async def get_s3(
 
     elif github_auth_result == AuthResult.authorized:
         # User is authorized; stream from S3.
-        if path == "" or path.endswith("/"):
-            # redwrite "*/" as "*/index.html" for static sites in S3
-            bucket_path = f"{config.s3_bucket_prefix}{path}index.html"
-        else:
-            bucket_path = f"{config.s3_bucket_prefix}{path}"
+        bucket_path = map_s3_path(config.s3_bucket_prefix, path)
+        logger.debug(
+            "computed bucket path",
+            bucket_path=bucket_path,
+            request_url=str(request.url),
+        )
         stream = await bucket.stream_object(http_client, bucket_path)
         if stream.status_code == 404:
-            raise HTTPException(status_code=404, detail="Does not exist.")
+            if not path.endswith("/") and posixpath.splitext(path)[1] == "":
+                # try a redirect
+                parsed_url = urlparse(str(request.url))
+                parsed_url = parsed_url._replace(path=f"{parsed_url.path}/")
+                return RedirectResponse(url=parsed_url.geturl())
+            else:
+                raise HTTPException(status_code=404, detail="Does not exist.")
         logger.debug("stream headers", headers=stream.headers)
         response_headers = {
             "Content-type": stream.headers["Content-type"],
             "Content-length": stream.headers["Content-length"],
             "Etag": stream.headers["Etag"],
         }
+        # FIXME hack to override content-type headers
+        if bucket_path.endswith(".html"):
+            logger.debug("is html")
+            response_headers["Content-type"] = "text/html"
+        elif bucket_path.endswith(".css"):
+            logger.debug("is css")
+            response_headers["Content-type"] = "text/css"
+        elif bucket_path.endswith(".js"):
+            logger.debug("is js")
+            response_headers["Content-type"] = "application/javascript"
+        elif bucket_path.endswith(".pdf"):
+            logger.debug("is pdf")
+            response_headers["Content-type"] = "application/pdf"
+        elif bucket_path.endswith(".png"):
+            logger.debug("is png")
+            response_headers["Content-type"] = "image/png"
+        else:
+            logger.debug("did not change response content-type")
+
+        logger.debug("response headers", headers=response_headers)
+
         return StreamingResponse(
             stream.aiter_raw(),
             background=BackgroundTask(stream.aclose),

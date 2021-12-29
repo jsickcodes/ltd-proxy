@@ -20,6 +20,9 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
 
+      - name: Install stable virtualenv # https://github.com/pre-commit/action/issues/135
+        run: pip install -U virtualenv==20.10.0
+
       - name: Run pre-commit
         uses: pre-commit/action@v2.0.3
 
