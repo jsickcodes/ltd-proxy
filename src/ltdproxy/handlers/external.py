@@ -13,7 +13,6 @@ from starlette.background import BackgroundTask
 from starlette.requests import Request
 from starlette.responses import (
     HTMLResponse,
-    PlainTextResponse,
     RedirectResponse,
     StreamingResponse,
 )
@@ -35,11 +34,6 @@ __all__ = ["get_s3", "external_router"]
 
 external_router = APIRouter()
 """FastAPI router for all external handlers."""
-
-
-@external_router.get("/", name="homepage")
-async def get_homepage() -> PlainTextResponse:
-    return PlainTextResponse("OK", status_code=200)
 
 
 @external_router.get("/auth", name="get_oauth_callback")
