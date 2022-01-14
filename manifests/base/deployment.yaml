@@ -36,10 +36,16 @@ spec:
              - name: "auth-config"
                mountPath: "/opt/ltd-proxy/auth/"
                readOnly: true
+             - name: "rewrites-config"
+               mountPath: "/opt/ltd-proxy/rewrites/"
+               readOnly: true
       volumes:
         - name: "auth-config"
           configMap:
             name: "ltd-proxy-auth"
+        - name: "rewrites-config"
+          configMap:
+            name: "ltd-proxy-rewrites"
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000

@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "ltd-proxy-rewrites"
+  labels:
+    app.kubernetes.io/name: "ltd-proxy"
+data:
+  rewriterules.yaml: |
+    # Example rule:
+    # - pattern: "\\/$"
+    #   substitution: "http://localhost:8000/__healthz"
+    rewrites: []

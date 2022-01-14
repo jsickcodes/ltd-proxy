@@ -3,10 +3,11 @@ kind: Kustomization
 
 images:
   - name: "ghcr.io/jsickcodes/ltd-proxy"
-    newTag: 0.1.0
+    newTag: 0.2.0
 
 resources:
   - configmap.yaml
   - auth-configmap.yaml
+  - rewrites-configmap.yaml
   - deployment.yaml
   - service.yaml
