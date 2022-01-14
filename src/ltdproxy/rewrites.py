@@ -12,6 +12,8 @@ from pydantic import BaseModel
 from starlette.background import BackgroundTask
 from starlette.responses import StreamingResponse
 
+from ltdproxy.config import config
+
 
 class RewriteRule(BaseModel):
     """A single request URL rewrite rule."""
@@ -93,3 +95,24 @@ class RewriteEngine:
             background=BackgroundTask(stream.aclose),
             headers=response_headers,
         )
+
+
+class RewriteDependency:
+    """FastAPI dependency for the rewrites engine."""
+
+    def __init__(self) -> None:
+        self._rewrite_engine: Optional[RewriteEngine] = None
+
+    async def initialize(self, http_client: httpx.AsyncClient) -> None:
+        engine = RewriteEngine.init_from_file(
+            path=config.rewrites_config_path, http_client=http_client
+        )
+        self._rewrite_engine = engine
+
+    async def __call__(self) -> RewriteEngine:
+        if self._rewrite_engine is None:
+            raise RuntimeError("RewriteDependency is not initialized")
+        return self._rewrite_engine
+
+
+rewrite_dependency = RewriteDependency()

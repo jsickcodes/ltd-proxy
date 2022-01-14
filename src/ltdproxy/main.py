@@ -17,6 +17,7 @@ from starlette.middleware.sessions import SessionMiddleware
 
 from .appsetup import add_handlers
 from .config import config
+from .rewrites import rewrite_dependency
 
 __all__ = ["app", "config"]
 
@@ -45,6 +46,7 @@ async def startup_event() -> None:
     )
     logger.info("Starting up", version=metadata.version)
     app.add_middleware(XForwardedMiddleware)
+    await rewrite_dependency.initialize(await http_client_dependency())
 
 
 @app.on_event("shutdown")
