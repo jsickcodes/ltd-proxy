@@ -1,0 +1,3 @@
+rewrites:
+  - pattern: "\\/$"
+    substitution: "http://spherex-doc-portal/"

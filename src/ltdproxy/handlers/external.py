@@ -13,7 +13,6 @@ from starlette.background import BackgroundTask
 from starlette.requests import Request
 from starlette.responses import (
     HTMLResponse,
-    PlainTextResponse,
     RedirectResponse,
     StreamingResponse,
 )
@@ -28,6 +27,7 @@ from ltdproxy.githubauth import (
     github_oauth_dependency,
     set_serialized_github_memberships,
 )
+from ltdproxy.rewrites import RewriteEngine, rewrite_dependency
 from ltdproxy.s3 import Bucket, bucket_dependency
 from ltdproxy.urlmap import map_s3_path
 
@@ -35,11 +35,6 @@ __all__ = ["get_s3", "external_router"]
 
 external_router = APIRouter()
 """FastAPI router for all external handlers."""
-
-
-@external_router.get("/", name="homepage")
-async def get_homepage() -> PlainTextResponse:
-    return PlainTextResponse("OK", status_code=200)
 
 
 @external_router.get("/auth", name="get_oauth_callback")
@@ -134,6 +129,7 @@ async def get_s3(
     bucket: Bucket = Depends(bucket_dependency),
     http_client: httpx.AsyncClient = Depends(http_client_dependency),
     github_auth: GitHubAuth = Depends(github_auth_dependency),
+    rewrite_engine: RewriteEngine = Depends(rewrite_dependency),
 ) -> Union[StreamingResponse, RedirectResponse]:
     """The S3 proxy endpoint."""
     github_auth_result = github_auth.is_session_authorized(
@@ -154,6 +150,11 @@ async def get_s3(
         raise HTTPException(status_code=403, detail="Not authorized")
 
     elif github_auth_result == AuthResult.authorized:
+        # User is authorized; first check rewrites
+        response = await rewrite_engine.build_response(f"/{path}")
+        if response:
+            return response
+
         # User is authorized; stream from S3.
         bucket_path = map_s3_path(config.s3_bucket_prefix, path)
         logger.debug(

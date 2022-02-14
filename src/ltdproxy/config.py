@@ -69,6 +69,8 @@ class Configuration(BaseSettings):
 
     path_prefix: str = Field("/", env="LTDPROXY_PATH_PREFIX")
 
+    rewrites_config_path: FilePath = Field(env="LTDPROXY_REWRITES_CONFIG")
+
 
 config = Configuration(_env_file=os.getenv("LTD_PROXY_ENV"))
 """Configuration for ltd-proxy."""

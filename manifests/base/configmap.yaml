@@ -13,6 +13,7 @@ data:
   SAFIR_PROFILE: "production"
   LTDPROXY_AUTH_CONFIG: "/opt/ltd-proxy/auth/authrules.yaml"
   LTDPROXY_PATH_PREFIX: "/"
+  LTDPROXY_REWRITES_CONFIG: "/opt/ltd-proxy/rewrites/rewriterules.yaml"
   LTDPROXY_S3_BUCKET: ""
   LTDPROXY_S3_PREFIX: ""
   LTDPROXY_AWS_REGION: ""
