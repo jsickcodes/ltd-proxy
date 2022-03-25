@@ -165,13 +165,22 @@ async def get_s3(
         stream = await bucket.stream_object(http_client, bucket_path)
         if stream.status_code == 404:
             if not path.endswith("/") and posixpath.splitext(path)[1] == "":
-                # try a redirect
+                # try a redirect; not sure this is relevant with directory
+                # redirect objects
                 parsed_url = urlparse(str(request.url))
                 parsed_url = parsed_url._replace(path=f"{parsed_url.path}/")
                 return RedirectResponse(url=parsed_url.geturl())
             else:
                 raise HTTPException(status_code=404, detail="Does not exist.")
         logger.debug("stream headers", headers=stream.headers)
+
+        # Check if it's an LTD directory redirect object with a
+        # x-amz-meta-dir-redirect header:
+        if stream.headers.get("x-amz-meta-dir-redirect", "false") == "true":
+            parsed_url = urlparse(str(request.url))
+            parsed_url = parsed_url._replace(path=f"{parsed_url.path}/")
+            return RedirectResponse(url=parsed_url.geturl())
+
         response_headers = {
             "Content-type": stream.headers["Content-type"],
             "Content-length": stream.headers["Content-length"],
