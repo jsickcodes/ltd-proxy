@@ -16,10 +16,9 @@ from typing import (
     TypeVar,
 )
 
-import authlib.integrations.starlette_client.integration
 import gidgethub.httpx
 import yaml
-from authlib.integrations.starlette_client import OAuth
+from authlib.integrations.starlette_client import OAuth, StarletteOAuth2App
 from pydantic import BaseModel
 from structlog import get_logger
 
@@ -37,10 +36,7 @@ __all__ = [
     "set_serialized_github_memberships",
 ]
 
-GitHubOAuthType = TypeVar(
-    "GitHubOAuthType",
-    bound=authlib.integrations.starlette_client.integration.StarletteRemoteApp,
-)
+GitHubOAuthType = TypeVar("GitHubOAuthType", bound=StarletteOAuth2App)
 """Type alias from the authlib GitHub OAuth client."""
 
 logger = get_logger(config.logger_name)
