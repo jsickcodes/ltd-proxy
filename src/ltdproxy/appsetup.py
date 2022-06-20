@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from importlib.metadata import metadata
+from importlib.metadata import metadata, version
 from typing import TYPE_CHECKING
 
 from .handlers.external import external_router
@@ -22,8 +22,8 @@ def add_handlers(*, config: Configuration, app: FastAPI) -> None:
     else:
         external_app = FastAPI(
             title="ltd-proxy",
-            description=metadata("ltd-proxy").get("Summary", ""),
-            version=metadata("ltd-proxy").get("Version", "0.0.0"),
+            description=metadata("ltd-proxy")["Summary"],
+            version=version("ltd-proxy"),
             openapi_url=None,
         )
         external_app.include_router(external_router)
