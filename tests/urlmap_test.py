@@ -13,7 +13,7 @@ from ltdproxy.urlmap import map_s3_path
         (
             "",
             "myproject",
-            "myproject/v/__main",
+            "myproject/v/__main/index.html",
         ),
         (
             "",
@@ -33,7 +33,7 @@ from ltdproxy.urlmap import map_s3_path
         (
             "",
             "myproject/v/dev",
-            "myproject/v/dev",
+            "myproject/v/dev/index.html",
         ),
         (
             "",
@@ -51,6 +51,36 @@ from ltdproxy.urlmap import map_s3_path
             "myproject/v/dev/a/b/index.html",
         ),
         (
+            "",
+            "myproject/v/",
+            "myproject/v/index.html",
+        ),
+        (
+            "",
+            "myproject/v",
+            "myproject/v/index.html",
+        ),
+        (
+            "",
+            "myproject/v/index.html",
+            "myproject/v/index.html",
+        ),
+        (
+            "",
+            "myproject/builds/",
+            "myproject/builds/index.html",
+        ),
+        (
+            "",
+            "myproject/builds",
+            "myproject/builds/index.html",
+        ),
+        (
+            "",
+            "myproject/builds/index.html",
+            "myproject/builds/index.html",
+        ),
+        (
             "prefix",
             "myproject/",
             "prefix/myproject/v/__main/index.html",
@@ -63,12 +93,22 @@ from ltdproxy.urlmap import map_s3_path
         (
             "prefix",
             "myproject/v/dev",
-            "prefix/myproject/v/dev",
+            "prefix/myproject/v/dev/index.html",
         ),
         (
             "prefix",
             "myproject/v/dev/index.html",
             "prefix/myproject/v/dev/index.html",
+        ),
+        (
+            "",
+            "myproject/_dashboard-assets/app.css",
+            "myproject/_dashboard-assets/app.css",
+        ),
+        (
+            "prefix",
+            "myproject/_dashboard-assets/app.css",
+            "prefix/myproject/_dashboard-assets/app.css",
         ),
     ],
 )
