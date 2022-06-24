@@ -30,47 +30,27 @@ def create_bucket_path(request_path: str) -> List[str]:
     project_name = parts[0].lower()
 
     if parts_count == 1:
-        return create_edition_path(
-            project=project_name,
-            edition="__main",
-            path=["index.html"],
-        )
+        return [project_name, "v", "__main"]
     elif parts[1].lower() == "v":
         if parts_count == 2:
-            return create_dashboard_path(
-                project=project_name, dashboard_prefix="v"
-            )
+            return [project_name, "v"]
         elif parts_count == 3:
-            if parts[2] in ("", "index.html"):
-                return create_dashboard_path(
-                    project=project_name, dashboard_prefix="v"
-                )
+            if parts[2] == "":
+                return [project_name, "v", "index.html"]
             else:
-                return create_edition_path(
-                    project=project_name,
-                    edition=parts[2],
-                    path=["index.html"],
-                )
+                return [project_name, "v", parts[2]]
         else:
             return create_edition_path(
                 project=project_name, edition=parts[2], path=parts[3:]
             )
     elif parts[1].lower() == "builds":
         if parts_count == 2:
-            return create_dashboard_path(
-                project=project_name, dashboard_prefix="builds"
-            )
+            return [project_name, "builds"]
         elif parts_count == 3:
-            if parts[2] in ("", "index.html"):
-                return create_dashboard_path(
-                    project=project_name, dashboard_prefix="builds"
-                )
+            if parts[2] == "":
+                return [project_name, "builds", "index.html"]
             else:
-                return create_build_path(
-                    project=project_name,
-                    build=parts[2],
-                    path=["index.html"],
-                )
+                return [project_name, "builds", parts[2]]
         else:
             return create_build_path(
                 project=project_name, build=parts[2], path=parts[3:]
@@ -82,14 +62,6 @@ def create_bucket_path(request_path: str) -> List[str]:
         return create_edition_path(
             project=project_name, edition=edition_name, path=parts[1:]
         )
-
-
-def create_dashboard_path(
-    *,
-    project: str,
-    dashboard_prefix: str,
-) -> List[str]:
-    return [project, dashboard_prefix, "index.html"]
 
 
 def create_edition_path(
