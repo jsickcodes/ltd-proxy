@@ -35,6 +35,7 @@ add_handlers(app=app, config=config)
 app.add_middleware(
     SessionMiddleware, secret_key=config.session_key.get_secret_value()
 )
+app.add_middleware(XForwardedMiddleware)
 
 
 @app.on_event("startup")
@@ -45,7 +46,6 @@ async def startup_event() -> None:
         application_name=config.name,
     )
     logger.info("Starting up", version=metadata.version)
-    app.add_middleware(XForwardedMiddleware)
     await rewrite_dependency.initialize(await http_client_dependency())
 
 

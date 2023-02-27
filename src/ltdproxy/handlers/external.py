@@ -37,7 +37,7 @@ external_router = APIRouter()
 """FastAPI router for all external handlers."""
 
 
-@external_router.get("/auth", name="get_oauth_callback")
+@external_router.get("/auth", name="get_oauth_callback", response_model=None)
 async def get_oauth_callback(
     ref: Optional[str],
     request: Request,
@@ -73,7 +73,7 @@ async def get_oauth_callback(
     return RedirectResponse(url=redirect_url)
 
 
-@external_router.get("/login", name="login")
+@external_router.get("/login", name="login", response_model=None)
 async def get_login(
     ref: Optional[str],
     request: Request,
@@ -98,7 +98,7 @@ async def get_login(
     return await github_oauth.authorize_redirect(request, redirect_uri)
 
 
-@external_router.get("/logout", name="logout")
+@external_router.get("/logout", name="logout", response_model=None)
 async def get_logout(
     request: Request,
     logger: BoundLogger = Depends(logger_dependency),
@@ -109,7 +109,7 @@ async def get_logout(
     return RedirectResponse(url=request.url_for("logged-out"))
 
 
-@external_router.get("/logged-out", name="logged-out")
+@external_router.get("/logged-out", name="logged-out", response_model=None)
 async def get_logged_out(
     request: Request,
 ) -> Union[HTMLResponse, RedirectResponse]:
@@ -120,7 +120,10 @@ async def get_logged_out(
 
 
 @external_router.get(
-    "/{path:path}", description="The S3 front-end proxy.", name="proxy"
+    "/{path:path}",
+    description="The S3 front-end proxy.",
+    name="proxy",
+    response_model=None,
 )
 async def get_s3(
     path: str,

@@ -11,7 +11,6 @@ __all__ = ["Configuration", "config", "Profile", "LogLevel"]
 
 
 class LogLevel(str, Enum):
-
     DEBUG = "DEBUG"
 
     INFO = "INFO"
@@ -24,7 +23,6 @@ class LogLevel(str, Enum):
 
 
 class Profile(str, Enum):
-
     production = "production"
 
     development = "development"
