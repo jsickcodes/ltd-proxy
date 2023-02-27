@@ -2,21 +2,17 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import AsyncIterator
 
-import pytest
+import pytest_asyncio
 from asgi_lifespan import LifespanManager
+from fastapi import FastAPI
 from httpx import AsyncClient
 
 from ltdproxy import main
 
-if TYPE_CHECKING:
-    from typing import AsyncIterator
 
-    from fastapi import FastAPI
-
-
-@pytest.fixture
+@pytest_asyncio.fixture
 async def app() -> AsyncIterator[FastAPI]:
     """Return a configured test application.
 
@@ -27,7 +23,7 @@ async def app() -> AsyncIterator[FastAPI]:
         yield main.app
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client(app: FastAPI) -> AsyncIterator[AsyncClient]:
     """Return an ``httpx.AsyncClient`` configured to talk to the test app."""
     async with AsyncClient(app=app, base_url="https://example.com/") as client:
