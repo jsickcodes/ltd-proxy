@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 from enum import Enum
+from typing import Optional
 
 from pydantic import BaseSettings, Field, FilePath, HttpUrl, SecretStr
 
@@ -68,6 +69,16 @@ class Configuration(BaseSettings):
     path_prefix: str = Field("/", env="LTDPROXY_PATH_PREFIX")
 
     rewrites_config_path: FilePath = Field(env="LTDPROXY_REWRITES_CONFIG")
+
+    healthcheck_bucket_key: Optional[str] = Field(
+        None,
+        description=(
+            "A key in the bucket that the healthcheck endpoint will attempt "
+            "to stream. This is an actual bucket key, and is independent "
+            "of the s3_bucket_prefix configuration."
+        ),
+        env="LTDPROXY_S3_HEALTHCHECK_KEY",
+    )
 
 
 config = Configuration(_env_file=os.getenv("LTD_PROXY_ENV"))
