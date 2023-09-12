@@ -206,7 +206,10 @@ async def get_s3(
             logger.debug("is png")
             response_headers["Content-type"] = "image/png"
         else:
-            logger.debug("did not change response content-type")
+            logger.warning(
+                "Did not change response content-type",
+                response_headers=response_headers,
+            )
 
         logger.debug("response headers", headers=response_headers)
 

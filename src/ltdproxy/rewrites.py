@@ -84,11 +84,7 @@ class RewriteEngine:
             return None
 
         stream_headers = stream.headers
-        response_headers = {}
-        copy_headers = ("Content-Type", "Content-length")
-        for key in copy_headers:
-            if key in stream_headers:
-                response_headers[key] = stream_headers[key]
+        response_headers = dict(stream_headers)
 
         return StreamingResponse(
             stream.aiter_raw(),
