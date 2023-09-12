@@ -85,6 +85,7 @@ class RewriteEngine:
 
         stream_headers = stream.headers
         response_headers = {}
+        print("Stream headers:", stream_headers)
         copy_headers = ("Content-Type", "Content-length")
         for key in copy_headers:
             if key in stream_headers:
